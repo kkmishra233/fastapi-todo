@@ -1,7 +1,6 @@
 import json
 import logging
 from core.config import settings
-from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger(settings.PROJECT_TITLE)
 logger.setLevel(logging.INFO)
@@ -19,7 +18,6 @@ class StructuredLogger(logging.Logger):
 logging.setLoggerClass(StructuredLogger)
 
 ## configure handler
-handler = RotatingFileHandler(settings.LOG_FILE, maxBytes=10000, backupCount=3)
 file_handler = logging.FileHandler(settings.LOG_FILE)
 stream_handler = logging.StreamHandler()
 file_handler.setFormatter(formatter)
@@ -28,4 +26,3 @@ stream_handler.setFormatter(formatter)
 # add handlers
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
-logger.addHandler(handler)
