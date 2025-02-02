@@ -10,6 +10,9 @@ class BaseProjectSettings(BaseSettings):
     DATABASE_URL: str = f"sqlite:///{BASE_DIR}/db.sqlite3"
     LOG_FILE: str = f"{BASE_DIR}/app.log"
     LOG_LEVEL: str = "INFO"
+    KEYCLOAK_URL: str = ""
+    KEYCLOAK_REALM : str = ""
+    KEYCLOAK_AUDIENCE: str = ""
 
 class DevProjectSettings(BaseProjectSettings):
     model_config = SettingsConfigDict(env_file=str(BASE_DIR / ".env.dev"))

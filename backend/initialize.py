@@ -21,7 +21,7 @@ def init_db(app: FastAPI):
         app,
         db_url=settings.DATABASE_URL,
         generate_schemas=True,
-        modules={"models": ["models.todo"]},
+        modules={"models": ["models.todo","models.user","models.group"]},
     )
 
 
@@ -31,5 +31,6 @@ def init_routers(app: FastAPI):
     :param app:
     :return:
     """
-    from routers import todo
+    from routers import todo, health
     app.include_router(todo.router)
+    app.include_router(health.router)

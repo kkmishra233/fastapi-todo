@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from schemas.todo import TodoCreate, TodoUpdate, TodoResponse
-from services.todo_service import (
+from services.todo import (
     create_todo, get_all_todos, get_todo_by_id, update_todo, delete_todo
 )
 
