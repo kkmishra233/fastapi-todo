@@ -19,13 +19,11 @@ ALGORITHMS = ["RS256"]
 async def get_public_key(kid):
     JWKS_URI=f"{settings.KEYCLOAK_URL}/realms/{settings.KEYCLOAK_REALM}/protocol/openid-connect/certs"
     response = requests.get(JWKS_URI)
-    
     if response.status_code != 200:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error fetching keys from Keycloak: {response.text}"
         )
-    
     try:
         data = response.json()
         keys = data.get("keys", [])
@@ -34,7 +32,6 @@ async def get_public_key(kid):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Invalid JSON response from Keycloak"
         )
-
     for key in keys:
         if key["kid"] == kid and key["alg"] in ALGORITHMS:
             return key
@@ -45,32 +42,23 @@ async def construct_rsa_public_key(n: str, e: str):
     """Construct an RSA public key from its modulus and exponent."""
     n_bytes = int.from_bytes(base64.urlsafe_b64decode(n + "==="), "big")
     e_bytes = int.from_bytes(base64.urlsafe_b64decode(e + "==="), "big")
-    
     public_numbers = rsa.RSAPublicNumbers(e_bytes, n_bytes)
     public_key = public_numbers.public_key(default_backend())
-    
     return public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    authorization: str | None = Header(None)
-) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme),authorization: str | None = Header(None)) -> User:
     if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Authorization header"
         )
-    
     try:
         headers = jwt.get_unverified_header(token)
-
         public_key_data = await get_public_key(headers["kid"])
-
         public_key_pem = await construct_rsa_public_key(public_key_data["n"], public_key_data["e"])
-
         token_info = jwt.decode(token, public_key_pem, algorithms=ALGORITHMS, audience=settings.KEYCLOAK_AUDIENCE)
         username = token_info.get("preferred_username")
         groups = token_info.get("groups", [])
