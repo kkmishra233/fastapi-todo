@@ -9,6 +9,9 @@ or
 
 uv run fastapi run
 
+docker build --no-cache --target runtime -t fastapi-todo .
+docker run -ti --rm --name fastapi-todo -p 8080:8080 fastapi-todo:latest
+
 # auth check
 curl -X POST "http://172.21.65.97:30101/realms/master/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
